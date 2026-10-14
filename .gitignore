@@ -39,3 +39,18 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Safe, documented template only
+!.env.example
+# Browser test output
+/playwright-report/
+/test-results/
+# Credentials and private keys
+.aws/
+*.key
+*.p12
+*.pfx
+credentials.json
+service-account*.json
+
+AGENTS.MD

@@ -1,0 +1,67 @@
+/* Scene-specific semantic colors: separate day/night palettes, no dark overlay. */
+:root {
+  --scene-sky: #afbfcb;
+  --scene-haze: #d5d5bb;
+  --scene-far: #798da0;
+  --scene-middle: #52687b;
+  --scene-ground: #263a4d;
+  --scene-edge: #9aab91;
+  --scene-water: #487f99;
+  --scene-light: #f4e7b8;
+  --scene-ship: #d2e6d1;
+  --scene-enemy: #be654d;
+  --scene-spark: #f5ae57;
+  --explore-sky: #b9d2c1;
+  --explore-haze: #d5d5a5;
+  --explore-far: #91a99a;
+  --explore-middle: #557d74;
+  --explore-ground: #243f48;
+  --explore-edge: #90b174;
+}
+:root[data-mode="dark"] {
+  --scene-sky: #101b32;
+  --scene-haze: #283650;
+  --scene-far: #3e506a;
+  --scene-middle: #314059;
+  --scene-ground: #142137;
+  --scene-edge: #697d8b;
+  --scene-water: #2c5b7e;
+  --scene-light: #d6e6bb;
+  --scene-ship: #87bcb2;
+  --scene-enemy: #d58477;
+  --scene-spark: #efb469;
+  --explore-sky: #142738;
+  --explore-haze: #2c4450;
+  --explore-far: #3e6267;
+  --explore-middle: #2b4e50;
+  --explore-ground: #152f3b;
+  --explore-edge: #76a17b;
+}
+:root[data-theme="retro-mix"] {
+  --page-light: #e8dfc6;
+  --surface-light: #f4ebd3;
+  --ink-light: #243445;
+  --muted-light: #47505a;
+  --accent-light: #873b24;
+  --on-accent-light: #fff1d5;
+  --border-light: #5b675e;
+  --secondary-light: #d8d0b6;
+  --navbar-light: #e4b556;
+  --page-dark: #152033;
+  --surface-dark: #23334b;
+  --ink-dark: #f2e6c7;
+  --muted-dark: #c4c9c6;
+  --accent-dark: #eac078;
+  --on-accent-dark: #1b293e;
+  --border-dark: #7c8b93;
+  --secondary-dark: #34465e;
+  --navbar-dark: #233046;
+}
+:root[data-theme="nes"] {
+  --font-display: var(--font-pixel), "Courier New", monospace;
+  --font-label: var(--font-pixel), "Courier New", monospace;
+  --scene-ship: #e5c89b;
+  --scene-enemy: #d07767;
+}
+:root[data-theme="snes"] { --scene-ship: #b7b4e4; --scene-enemy: #d790a9; }
+:root[data-theme="n64"] { --scene-ship: #85c6b8; --scene-enemy: #e6a765; }

@@ -1,0 +1,197 @@
+:root {
+  --font-body: Arial, Helvetica, sans-serif;
+  --navbar-light: var(--surface-light);
+  --navbar-dark: var(--surface-dark);
+  --font-display: Arial, Helvetica, sans-serif;
+  --font-label: "Courier New", monospace;
+  --radius: 16px;
+  --radius-small: 6px;
+  --border-width: 1px;
+  --shadow: 5px 6px 0 var(--border);
+  --heading-spacing: -0.065em;
+  --surface-treatment: linear-gradient(135deg, transparent, #e77b3210);
+  --page-light: #f8f5ed;
+  --surface-light: #fffcf5;
+  --ink-light: #25281e;
+  --muted-light: #626456;
+  --accent-light: #a13d12;
+  --on-accent-light: #fffaf0;
+  --border-light: #c4c2b4;
+  --secondary-light: #e5e9d9;
+  --page-dark: #171e19;
+  --surface-dark: #222b23;
+  --ink-dark: #f5f1de;
+  --muted-dark: #b8bda9;
+  --accent-dark: #ffae73;
+  --on-accent-dark: #281a10;
+  --border-dark: #515d4f;
+  --secondary-dark: #303c2c;
+  --screen: #18281f;
+  --screen-ink: #edebba;
+  --land-back: #5e7450;
+  --land-front: #334d37;
+  --sun: #e5ac6a;
+}
+:root[data-theme="nes"] {
+  --font-display: "Courier New", monospace;
+  --radius: 0px;
+  --radius-small: 0px;
+  --border-width: 2px;
+  --shadow: 6px 6px 0 var(--ink);
+  --heading-spacing: -0.075em;
+  --surface-treatment: none;
+  --page-light: #eeece6;
+  --surface-light: #faf9f5;
+  --ink-light: #252526;
+  --muted-light: #626164;
+  --accent-light: #b51e33;
+  --on-accent-light: #ffffff;
+  --border-light: #969396;
+  --secondary-light: #dddadd;
+  --page-dark: #191819;
+  --surface-dark: #252325;
+  --ink-dark: #faf2ef;
+  --muted-dark: #c7bbbe;
+  --accent-dark: #ff8291;
+  --on-accent-dark: #330a12;
+  --border-dark: #74676c;
+  --secondary-dark: #3b3337;
+  --screen: #181c24;
+  --screen-ink: #faf3e1;
+  --land-back: #826361;
+  --land-front: #50343d;
+  --sun: #ee8473;
+}
+:root[data-theme="snes"] {
+  --font-display: "Trebuchet MS", Arial, sans-serif;
+  --radius: 24px;
+  --radius-small: 10px;
+  --shadow: 0 8px 0 var(--border);
+  --heading-spacing: -0.055em;
+  --surface-treatment: linear-gradient(135deg, #9678d51a, transparent);
+  --page-light: #f0edf6;
+  --surface-light: #faf8ff;
+  --ink-light: #30263f;
+  --muted-light: #685c78;
+  --accent-light: #6740a3;
+  --on-accent-light: #ffffff;
+  --border-light: #b9adcc;
+  --secondary-light: #e2d9ef;
+  --page-dark: #211b2e;
+  --surface-dark: #2e253f;
+  --ink-dark: #f6efff;
+  --muted-dark: #c6b8dc;
+  --accent-dark: #c6a5ff;
+  --on-accent-dark: #28153e;
+  --border-dark: #675879;
+  --secondary-dark: #403252;
+  --screen: #261e3c;
+  --screen-ink: #f2ddff;
+  --land-back: #8572b1;
+  --land-front: #4e4277;
+  --sun: #e5b4d8;
+}
+:root[data-theme="n64"] {
+  --font-display: "Trebuchet MS", Arial, sans-serif;
+  --radius: 30px;
+  --radius-small: 14px;
+  --border-width: 1px;
+  --shadow: 0 14px 35px #0d28532b;
+  --heading-spacing: -0.05em;
+  --surface-treatment: linear-gradient(
+    140deg,
+    #3188e41c,
+    transparent 50%,
+    #31b68b16
+  );
+  --page-light: #eaf2f4;
+  --surface-light: #f8fdff;
+  --ink-light: #192e44;
+  --muted-light: #4d6474;
+  --accent-light: #165fa0;
+  --on-accent-light: #ffffff;
+  --border-light: #9cb7c9;
+  --secondary-light: #d0e4e9;
+  --page-dark: #111e30;
+  --surface-dark: #1b2d42;
+  --ink-dark: #eaf7ff;
+  --muted-dark: #afc8d9;
+  --accent-dark: #7fcaff;
+  --on-accent-dark: #092d4b;
+  --border-dark: #44637c;
+  --secondary-dark: #29455b;
+  --screen: #122c45;
+  --screen-ink: #e5f9ee;
+  --land-back: #3d8e91;
+  --land-front: #215969;
+  --sun: #edcd76;
+}
+:root,
+:root[data-mode="light"] {
+  color-scheme: light;
+  --page: var(--page-light);
+  --navbar: var(--navbar-light);
+  --surface: var(--surface-light);
+  --ink: var(--ink-light);
+  --muted: var(--muted-light);
+  --accent: var(--accent-light);
+  --on-accent: var(--on-accent-light);
+  --border: var(--border-light);
+  --secondary: var(--secondary-light);
+}
+:root[data-mode="dark"] {
+  color-scheme: dark;
+  --page: var(--page-dark);
+  --navbar: var(--navbar-dark);
+  --surface: var(--surface-dark);
+  --ink: var(--ink-dark);
+  --muted: var(--muted-dark);
+  --accent: var(--accent-dark);
+  --on-accent: var(--on-accent-dark);
+  --border: var(--border-dark);
+  --secondary: var(--secondary-dark);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-mode]) {
+    color-scheme: dark;
+    --page: var(--page-dark);
+  --navbar: var(--navbar-dark);
+    --surface: var(--surface-dark);
+    --ink: var(--ink-dark);
+    --muted: var(--muted-dark);
+    --accent: var(--accent-dark);
+    --on-accent: var(--on-accent-dark);
+    --border: var(--border-dark);
+    --secondary: var(--secondary-dark);
+  }
+}
+
+/* Provisional handheld identity. The other theme definitions remain independent. */
+:root[data-theme="retro-mix"] {
+  --font-display: var(--font-pixel), "Courier New", monospace;
+  --font-label: var(--font-pixel), "Courier New", monospace;
+  --radius: 0px;
+  --radius-small: 0px;
+  --border-width: 2px;
+  --shadow: 4px 4px 0 var(--ink);
+  --heading-spacing: 0;
+  --surface-treatment: none;
+  --page-light: #a9bb57;
+  --surface-light: #a9bb57;
+  --ink-light: #1b2618;
+  --muted-light: #1b2618;
+  --accent-light: #1b2618;
+  --on-accent-light: #a9bb57;
+  --border-light: #1b2618;
+  --secondary-light: #a9bb57;
+  --navbar-light: #e8b34b;
+  --page-dark: #152018;
+  --surface-dark: #152018;
+  --ink-dark: #b9d16d;
+  --muted-dark: #b9d16d;
+  --accent-dark: #b9d16d;
+  --on-accent-dark: #152018;
+  --border-dark: #b9d16d;
+  --secondary-dark: #152018;
+  --navbar-dark: #233046;
+}
