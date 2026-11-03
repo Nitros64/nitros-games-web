@@ -19,7 +19,7 @@ for (const mode of ["light", "dark"] as const) {
     await page.screenshot({ path: testInfo.outputPath(`desktop-${mode}.png`), fullPage: true, style: "nextjs-portal { display: none; }" });
     await page.getByRole("link", { name: "EXPLORE GAMES", exact: true }).click();
     await expect(page).toHaveURL(/#games$/);
-    await expect(page.locator("#games").getByRole("heading", { name: "COMING SOON", exact: true })).toBeVisible();
+    await expect(page.locator("#games").getByRole("heading", { name: "OUR GAMES", exact: true })).toBeVisible();
     await page.getByRole("link", { name: "CONTACT", exact: true }).click();
     await expect(page).toHaveURL(/#contact$/);
     await expect(page.getByRole("heading", { name: "KEEP IN TOUCH" })).toBeVisible();

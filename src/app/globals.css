@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "../theme/tokens.css";
 @import "../theme/scene-tokens.css";
+@import "../features/catalog/catalog.css";
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 24px; }

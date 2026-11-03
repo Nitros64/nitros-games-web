@@ -82,7 +82,14 @@ export function LivingScene() {
     resize();
     const resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(canvas);
-    const intersection = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; syncPlayback(); }, { threshold: .05 });
+    const intersection = new IntersectionObserver(entries => {
+      // A delivery can contain several transitions for this canvas. Keep the
+      // latest one, then reconcile playback once for the entire batch.
+      for (const entry of entries) {
+        if (entry.target === canvas) visible = entry.isIntersecting;
+      }
+      syncPlayback();
+    }, { threshold: .05 });
     intersection.observe(canvas);
     const appearance = new MutationObserver(() => { readPalette(); resize(); });
     appearance.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme", "data-mode"] });
