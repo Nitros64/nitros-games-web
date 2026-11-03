@@ -19,6 +19,7 @@ Open http://localhost:3000. No AWS account, backend, environment variables or ne
 - `src/features/home`: homepage composition and independent decorative canvas scenes.
 - `src/components`: shared server-rendered navigation and footer.
 - `src/theme`: semantic CSS tokens, validated preference bootstrap and interactive appearance controls.
+- `src/features/admin-games`: administrative UI, validation and server actions.
 - `tests`: Playwright browser behavior tests. `src/server` contains server-only HTTP and backend configuration. Spring Boot remains a separate repository.
 
 The root layout applies `data-theme` and `data-mode` globally. Four looks (Retro mix, NES, SNES, N64) each have light and dark palettes, plus distinct type, corners, shadows and surface treatments. The names describe visual eras; the site is not affiliated with Nintendo. Retro Mix uses an experimental animated retro world with original pixel sprites and server-rendered navigation icons. Its Tiny5 pixel font is bundled locally; longer text uses system sans-serif. NES, SNES and N64 retain their own theme tokens.
@@ -65,7 +66,7 @@ After `npm run build`, set `PLAYWRIGHT_PRODUCTION=1` and run `npm test` for the 
 
 ## Next milestone
 
-Agree the OIDC client, issuer, redirect URIs, scopes and roles for Keycloak locally and Cognito in production. Then add a server-only session integration using a maintained standards-based library and a separate authentication feature. Keep administrative tokens on the server and Spring Boot authoritative for permissions. Add ADMIN routes only once the identity and authorization contracts are verified; hiding UI is not authorization.
+Validate Cognito issuer, logout and backend role mapping before enabling that provider. Move the session store to shared infrastructure before deploying multiple frontend replicas. Versions, downloads and image uploads remain future features.
 
 ## Living world experiments
 
@@ -80,8 +81,61 @@ The navigation maps **8-BIT → nes**, **16-BIT → snes**, **64-BIT → n64** a
 
 Animation uses one requestAnimationFrame loop outside React, drawing at up to 24 fps (12 on mobile). The low-resolution buffer stays independent of device pixel ratio. Mobile reduces entity counts and reserves a separate scenic band between the text and info window. IntersectionObserver, page visibility and reduced-motion listeners stop animation when appropriate; a public pause button is also available. Reduced motion renders a still scene. Listeners and animation frames are cleaned up on unmount. The previous SVG is the no-JavaScript/canvas fallback.
 
-All sprites and environments are original source artwork. The supplied logo remains unchanged at `public/brand/nitros_games_logo.webp`. Tiny5 is locally bundled under SIL OFL 1.1 with its license in `public/fonts`; source: https://github.com/google/fonts/tree/main/ofl/tiny5. No game engine, external font service or admin feature was added.
+All sprites and environments are original source artwork. The supplied logo remains unchanged at `public/brand/nitros_games_logo.webp`. Tiny5 is locally bundled under SIL OFL 1.1 with its license in `public/fonts`; source: https://github.com/google/fonts/tree/main/ofl/tiny5. No game engine or external font service was added. Administration is documented below.
 
 If another dev server already runs in this checkout, set `PLAYWRIGHT_BASE_URL=http://localhost:3000` before `npm test` to reuse it. After `npm run build`, set `PLAYWRIGHT_PRODUCTION=1` (and leave `PLAYWRIGHT_BASE_URL` unset) to run the production smoke test with `npm test`. It verifies the experimental controls are absent, animation works, preferences survive refresh, and navigation has no browser errors.
 
 CONTACT remains a standby panel until a real public contact channel is supplied. Motion is decorative, with no gameplay, collision engine, audio or player input. Both designs require visual review before further development.
+
+## Administration and OIDC
+
+Open `/admin` to manage games. The public site and its decorative scenes remain independent. `src/app/admin` composes server-rendered routes; `src/features/admin-games` owns contracts, forms, server actions and the backend adapter. `src/server/auth` owns OIDC configuration, encrypted session storage and CSRF checks. Only interactive forms use Client Components. The existing catalog decoder is shared without filtering drafts in the administrative list.
+
+The only new direct dependency is `openid-client` 6.8.9, a maintained OAuth/OIDC client. It handles discovery, Authorization Code exchange, PKCE S256, state, nonce, issuer/audience/expiry and ID token signature validation. There is no password collection, password grant, browser bearer-token storage, or client-side role authority. The existing public Keycloak client uses token endpoint authentication `none`; an optional server-side client secret supports a later confidential-client configuration. Spring Boot decides ADMIN authorization for every protected read and mutation.
+
+### Local setup and exact Keycloak URIs
+
+Keep Next.js at **http://localhost:3000** and Spring Boot at **http://localhost:8080**. Use the existing `nitros-games-web` client in realm `nitros-games`, issuer **http://localhost:8081/realms/nitros-games**. Keep Authorization Code / Standard Flow enabled and PKCE S256. Preserve existing Postman/other redirect entries. Add:
+
+- Valid redirect URI: `http://localhost:3000/auth/callback`
+- Valid post logout redirect URI: `http://localhost:3000/admin/login`
+
+The login request is POST `/auth/login`; the callback is GET `/auth/callback`; logout is POST `/auth/logout`. No wildcard callback is required. Use **localhost**, not 127.0.0.1, for this configuration: the configured origin and redirect URI must match exactly. No new browser-to-API CORS permission is needed because API requests originate on the Next.js server. This implementation does not alter Keycloak configuration automatically.
+
+Copy the documented settings from `.env.example` into an ignored local environment file and generate `AUTH_SECRET` with `node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"`. Never commit the result. `AUTH_SECRET` must be 64 hexadecimal characters; do not reuse an example key. A missing/invalid configuration disables sign-in without breaking the public site. Restart the server after configuration changes.
+
+For each staging/production deployment, supply its actual HTTPS `APP_URL`, `BACKEND_URL`, issuer, client ID and scopes through server configuration. Register precisely `<APP_URL>/auth/callback` and `<APP_URL>/admin/login` with that provider. Set `OIDC_ALLOW_HTTP=false`. No deployment hostname is invented here. The configuration is provider-neutral; Cognito itself, its logout behavior and its backend trust/role mapping have not been implemented or validated.
+
+### Sessions and security boundaries
+
+Cookies contain only random opaque identifiers. Session records, including access and ID tokens, stay on the server in AES-256-GCM encrypted files under `AUTH_SESSION_DIR`; the filenames are SHA-256 hashes of the cookie values. The directory is private and ignored by Git. Cookies are HttpOnly, SameSite=Lax and host-only, with Secure and a `__Host-` prefix on HTTPS. Loopback HTTP uses development cookies. Session IDs rotate after authentication; logout deletes the server record before contacting Keycloak. State, nonce and PKCE verifier are held in a single-use server transaction consumed with an atomic rename.
+
+Sessions expire five seconds before the access token, with an absolute maximum of one hour. This first version intentionally requires reauthentication at expiry instead of retaining refresh tokens. Existing Keycloak SSO can complete that sign-in without another password prompt. Provider rejection, expiry and sign-in errors are shown without exposing tokens or upstream error bodies. Local logout remains effective if the provider cannot be reached; in that case the provider's SSO session may still exist.
+
+All form mutations require a live session, an exact configured Origin and a session CSRF token, in addition to Next.js Server Action checks. Login also requires a same-origin POST. Redirect destinations are fixed server configuration, not user input. Mutations send the bearer token only from the server to Spring Boot, use no-store and do not follow redirects. Deletion requires typing the current game name and is checked again on the server. Tokens never appear in localStorage or component props. The standard OIDC logout redirect may include an ID-token hint; it never contains the access token.
+
+This initial session store targets a **single Node.js deployment with a private persistent filesystem**, not ephemeral serverless instances or independent replicas. Provision storage permissions/backups appropriately; use a shared session store before horizontally scaling. Changing AUTH_SECRET invalidates existing sessions. Expired records are rejected on read, removed when encountered, and records older than one hour are swept when a new record is created. A stopped service can retain encrypted expired files until the next creation; expiration is still enforced on access.
+
+### Integrated API contracts
+
+Contracts were inspected in the independent Spring Boot repository: `GameController`, `AdminGameController`, `GameRequest`, `PublicationRequest`, `GameGenreController`, `GameGenreResponse` and `SecurityConfiguration`.
+
+- GET `/api/v1/admin/games`: all games, including DRAFT.
+- GET `/api/v1/admin/games/{id}`: administrative detail.
+- POST `/api/v1/games`: create a DRAFT.
+- PUT `/api/v1/games/{id}`: edit metadata.
+- DELETE `/api/v1/games/{id}`: confirmed permanent deletion.
+- PUT `/api/v1/admin/games/{id}/publication`: `{ publicationStatus: "DRAFT" | "PUBLISHED" }`.
+- GET `/api/v1/game-genres`: existing `{ id, name }` options.
+
+Game input is `{ name, description, jam, developerCount, genreIds }`. Both name and description currently require **4–30 characters**, developerCount is a positive Java integer, and at least one existing genre is required. Publication is a separate operation. Lists and individual responses are validated as unknown data; no genre names or statuses are invented.
+
+### Administration tests
+
+`tests/admin.spec.ts` runs against a local test-only OIDC provider and API, with a generated signing key and PKCE verification. It covers login, opaque cookies, draft creation, editing, publishing/unpublishing, deletion confirmation, logout, reader denial, CSRF rejection, invalid state/nonce, expiry, HTTP failures and mobile overflow. Test credentials/keys and fixture data are never used by the application in normal operation. The test runner overrides all relevant server endpoints and uses an isolated encrypted session directory. No actual game is modified by automated fixture tests.
+
+Run `npm test` for development and, after `npm run build`, set `PLAYWRIGHT_PRODUCTION=1` and run `npm test` for production. Tests using `PLAYWRIGHT_BASE_URL` intentionally skip controlled OIDC/API scenarios. For real Keycloak verification, the user enters credentials in the provider page. Only clearly named disposable games may be created, edited and deleted for verification; preserve Arcane Drift and all existing data.
+
+Versions, downloads, image uploads and Cognito integration remain outside this milestone.
+
+Local verification on 2026-11-03 passed with the real Keycloak client and Spring Boot: manual administrator login, draft creation, persisted editing, publishing, unpublishing, confirmed deletion of the disposable test game (ID 4), and logout with subsequent route protection. Arcane Drift (ID 1) remained published and unchanged. The real non-ADMIN check is deferred because no test account is available; reader denial is covered by the controlled API/OIDC tests. Development tests: 45 passed; production tests: 21 passed; lint, typecheck and production build passed. The filesystem session store still requires a single persistent Node.js deployment as described above.

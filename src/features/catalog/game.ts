@@ -24,13 +24,20 @@ function isGame(value: unknown): value is Game {
     "publicationStatus" in value && (value.publicationStatus === "PUBLISHED" || value.publicationStatus === "DRAFT");
 }
 
-export function decodeGames(value: unknown): Game[] | null {
+export function decodeGame(value: unknown): Game | null {
+  if (!isGame(value)) return null;
+  return { id: value.id, name: value.name, description: value.description, jam: value.jam,
+    developerCount: value.developerCount, genreIds: value.genreIds, publicationStatus: value.publicationStatus };
+}
+
+export function decodeAllGames(value: unknown): Game[] | null {
   if (!Array.isArray(value) || !value.every(isGame)) return null;
   if (new Set(value.map(game => game.id)).size !== value.length) return null;
-  // Defense in depth; Spring Boot remains responsible for publication access.
-  return value.filter(game => game.publicationStatus === "PUBLISHED").map(game => ({
-    id: game.id, name: game.name, description: game.description, jam: game.jam,
-    developerCount: game.developerCount, genreIds: game.genreIds,
-    publicationStatus: game.publicationStatus,
-  }));
+  return value.map(game => ({ id: game.id, name: game.name, description: game.description, jam: game.jam,
+    developerCount: game.developerCount, genreIds: game.genreIds, publicationStatus: game.publicationStatus }));
+}
+
+export function decodeGames(value: unknown): Game[] | null {
+  const games = decodeAllGames(value);
+  return games?.filter(game => game.publicationStatus === "PUBLISHED") ?? null;
 }

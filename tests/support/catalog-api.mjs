@@ -1,8 +1,10 @@
+import { handleAdminFixture } from "./admin-fixture.mjs";
 import { createServer } from "node:http";
 
 // Test-only HTTP server: exercises server-side fetch without altering Spring Boot.
 let scenario = { body: [] };
 createServer(async (request, response) => {
+  if (await handleAdminFixture(request, response)) return;
   if (request.url === "/health") { response.end("ok"); return; }
   if (request.url === "/scenario" && request.method === "POST") {
     let body = "";

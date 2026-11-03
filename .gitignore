@@ -54,3 +54,5 @@ credentials.json
 service-account*.json
 
 AGENTS.MD
+# Encrypted server-side sessions (never commit runtime records)
+/.data/

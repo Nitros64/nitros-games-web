@@ -20,6 +20,6 @@ export function SiteHeader() {
   </header>;
 }
 export function SiteFooter() {
-  return <footer className="site-footer"><Link className="footer-brand" href="/">NITROS GAMES</Link><p>Small pixels. Endless possibility.</p><a className="back-top" href="#main">BACK TO TOP ↑</a></footer>;
+  return <footer className="site-footer"><Link className="footer-brand" href="/">NITROS GAMES</Link><p>Small pixels. Endless possibility.</p><Link className="back-top" href="/admin">ADMIN</Link><a className="back-top" href="#main">BACK TO TOP ↑</a></footer>;
 }
 
