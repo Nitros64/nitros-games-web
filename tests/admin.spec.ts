@@ -1,5 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import { safeDownloadUrl, decodeVersion, decodeVersions, decodeDownloads } from "../src/features/game-releases/contracts";
+import { mediaTests } from "./media-cases";
 
 async function login(page: Page, role = "admin") {
   await page.goto("/admin");
@@ -12,6 +13,7 @@ test.describe("OIDC and game administration", () => {
   test.describe.configure({ mode: "default" });
   test.skip(Boolean(process.env.PLAYWRIGHT_BASE_URL), "Requires the isolated OIDC provider and API.");
   test.beforeEach(async ({ request }) => { await request.post("http://127.0.0.1:3181/admin-scenario", { data: {} }); });
+  mediaTests(login);
 
   test("PKCE login, draft CRUD, publication, confirmation and logout", async ({ page, context }) => {
     const apiRequests: string[] = [];

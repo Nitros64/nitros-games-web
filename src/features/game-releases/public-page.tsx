@@ -8,6 +8,7 @@ import { getJson, type Result } from "@/server/http";
 import { decodeGame } from "@/features/catalog/game";
 import { parseId, decodeGenres as decodeOptions } from "@/features/admin-games/contracts";
 import { decodeVersions, decodeDownloads } from "./contracts";
+import { PublicGallery } from "@/features/game-media/public-gallery";
 
 export async function PublicReleases({ rawId }: { rawId: string }) {
   await connection();
@@ -29,6 +30,7 @@ export async function PublicReleases({ rawId }: { rawId: string }) {
   if (releases.some(({ version, links }) => !links.ok || links.data.some(link => link.gameVersionId !== version.id))) return unavailable();
   return <main id="main" className="content-width admin-page"><Link className="text-link" href="/#games">BACK TO GAMES</Link>
     <RetroWindow title="GAME / DOWNLOADS" icon="games"><div className="admin-body"><h1>{game.data.name}</h1><p>{game.data.description}</p>
+      <PublicGallery gameId={id} name={game.data.name} />
       {!releases.length ? <p>No versions available yet.</p> : releases.map(({ version, links }) => <section className="release-download" key={version.id} aria-label={version.name}>
         <h2>{version.name}</h2><p>{platforms.data.find(p => p.id === version.platformId)?.name ?? "Platform unavailable"} / {processors.data.find(p => p.id === version.processorId)?.name ?? "Processor unavailable"}</p>
         {links.ok && (links.data.length ? <ul>{links.data.map(link => <li key={link.id}>

@@ -52,6 +52,7 @@ export async function AdminEditor({ id: rawId }: { id?: string }) {
     {!genres.ok ? <p role="alert">{errorMessage(genres.error)}</p> : <>
       {game && <p className="eyebrow">STATUS / {game.publicationStatus}</p>}
       {game && <Link className="text-link" href={`/admin/${game.id}/versions`}>MANAGE VERSIONS & DOWNLOADS</Link>}
+      {game && <Link className="text-link" href={`/admin/${game.id}/media`}>MANAGE COVER & SCREENSHOTS</Link>}
       <GameEditor game={game} genres={genres.data} csrf={session.csrf} />
       {game && <GameOperations game={game} csrf={session.csrf} />}
     </>}

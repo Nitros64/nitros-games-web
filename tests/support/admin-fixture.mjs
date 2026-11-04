@@ -1,4 +1,5 @@
 import { resetReleases, releaseCatalog, handleReleases } from "./releases-fixture.mjs";
+import { resetMedia, handleMedia } from "./media-fixture.mjs";
 import { createHash, generateKeyPairSync, randomBytes, sign } from "node:crypto";
 
 const origin = "http://127.0.0.1:3181";
@@ -19,6 +20,7 @@ export async function handleAdminFixture(req, res) {
   const url = new URL(req.url, origin), path = url.pathname;
   if (path === "/admin-scenario" && req.method === "POST") {
     const scenario = JSON.parse(await body(req));
+    resetMedia(scenario);
     games = scenario.games ?? []; resetReleases(scenario); lifetime = scenario.lifetime ?? 3600; backendStatus = scenario.status ?? 0; invalidNonce = scenario.invalidNonce ?? false;
     json(res, { ok: true }); return true;
   }
@@ -66,6 +68,7 @@ export async function handleAdminFixture(req, res) {
     const game = games.find(item => item.id === Number(path.match(/games\/(\d+)/)?.[1]));
     if (game) {
       if (game.publicationStatus !== "PUBLISHED") { json(res, {}, 404); return true; }
+      if (await handleMedia(req, res, path, game)) return true;
       if (await handleReleases(req, res, path, game)) return true;
       json(res, game); return true;
     }
@@ -83,6 +86,7 @@ export async function handleAdminFixture(req, res) {
   }
   const game = games.find(item => item.id === id);
   if (!game) { json(res, {}, 404); return true; }
+  if (await handleMedia(req, res, path, game)) return true;
   if (await handleReleases(req, res, path, game)) return true;
   if (req.method === "GET") { json(res, game); return true; }
   if (req.method === "DELETE") { games = games.filter(item => item.id !== id); res.writeHead(204).end(); return true; }

@@ -7,12 +7,13 @@ export async function adminRequest<T>(session: Session, path: string, decode: (d
   method: "GET" | "POST" | "PUT" | "DELETE" = "GET", body?: unknown): Promise<Result<T>> {
   const origin = backendOrigin();
   if (!origin) return { ok: false, error: { kind: "configuration" } };
-  const signal = AbortSignal.timeout(5000);
+  const multipart = body instanceof FormData;
+  const signal = AbortSignal.timeout(multipart ? 30000 : 5000);
   try {
     const response = await fetch(new URL(path, origin), {
       method, headers: { Accept: "application/json", Authorization: `Bearer ${session.accessToken}`,
-        ...(body === undefined ? {} : { "Content-Type": "application/json" }) },
-      body: body === undefined ? undefined : JSON.stringify(body),
+        ...(body === undefined || multipart ? {} : { "Content-Type": "application/json" }) },
+      body: multipart ? body : body === undefined ? undefined : JSON.stringify(body),
       cache: "no-store", redirect: "manual", credentials: "omit", signal,
     });
     if (!response.ok) return { ok: false, error: { kind: "http", status: response.status } };

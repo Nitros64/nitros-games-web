@@ -136,7 +136,7 @@ Game input is `{ name, description, jam, developerCount, genreIds }`. Both name 
 
 Run `npm test` for development and, after `npm run build`, set `PLAYWRIGHT_PRODUCTION=1` and run `npm test` for production. Tests using `PLAYWRIGHT_BASE_URL` intentionally skip controlled OIDC/API scenarios. For real Keycloak verification, the user enters credentials in the provider page. Only clearly named disposable games may be created, edited and deleted for verification; preserve Arcane Drift and all existing data.
 
-Image uploads and Cognito integration remain outside this milestone.
+Cognito integration remains outside this milestone. Image uploads are described below.
 
 Local verification on 2026-11-03 passed with the real Keycloak client and Spring Boot: manual administrator login, draft creation, persisted editing, publishing, unpublishing, confirmed deletion of the disposable test game (ID 4), and logout with subsequent route protection. Arcane Drift (ID 1) remained published and unchanged. The real non-ADMIN check is deferred because no test account is available; reader denial is covered by the controlled API/OIDC tests. Development tests: 45 passed; production tests: 21 passed; lint, typecheck and production build passed. The filesystem session store still requires a single persistent Node.js deployment as described above.
 
@@ -147,3 +147,11 @@ Open a game in `/admin` and choose **MANAGE VERSIONS & DOWNLOADS**. Create or ed
 Public catalog entries link to `/games/{id}`. Only PUBLISHED games expose versions and safe HTTP/HTTPS download links. Drafts are read exclusively through the new ADMIN endpoints when managing them. Authentication, server-only bearer tokens, CSRF checks, appearance and decorative scenes are preserved. No library was added.
 
 See [contracts, endpoints and verification](docs/versions-downloads-contract-review.md) for the backend extension, API DTOs, file inventory and tests. Restart the local Spring Boot service after building the new backend code. No database migration or Keycloak configuration change is required.
+
+## Game media
+
+Open **MANAGE COVER & SCREENSHOTS** from a game's editor. Upload or replace a PNG/JPEG cover, upload multiple screenshots, edit alt text/captions, move screenshots up/down and delete images with written confirmation. Each file is limited to 10 MiB and 20 megapixels; Spring Boot checks the actual decoded content and sanitizes the image. Multiple screenshots are uploaded sequentially; partial failures report how many succeeded and ask you to reload before retrying.
+
+Published game pages include their cover and screenshot gallery, with links to view full images. Missing images have text alternatives. DRAFT images use an authenticated same-origin server route, never public storage URLs. Both public and administrative content responses are `no-store, private`; public requests are always anonymous upstream, including when the visitor has an administrator session. Dynamic media are excluded from Next's image optimizer cache.
+
+Uploads use a bounded Route Handler, not Server Actions: the per-request cap is 10 MiB + 64 KiB for multipart framing, with an independent 10 MiB file check. Keep deployment proxy/body limits at least that high (and upload timeouts compatible with the 30-second upstream timeout). No Next Server Action limit was raised. No new environment variables or packages are required. See [Game Media integration report](docs/game-media-integration.md) for contracts, architecture, verification and limitations.
