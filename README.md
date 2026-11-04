@@ -66,7 +66,7 @@ After `npm run build`, set `PLAYWRIGHT_PRODUCTION=1` and run `npm test` for the 
 
 ## Next milestone
 
-Validate Cognito issuer, logout and backend role mapping before enabling that provider. Move the session store to shared infrastructure before deploying multiple frontend replicas. Versions, downloads and image uploads remain future features.
+Validate Cognito issuer, logout and backend role mapping before enabling that provider. Move the session store to shared infrastructure before deploying multiple frontend replicas. Image uploads remain a future feature; version and download administration is documented below.
 
 ## Living world experiments
 
@@ -136,6 +136,14 @@ Game input is `{ name, description, jam, developerCount, genreIds }`. Both name 
 
 Run `npm test` for development and, after `npm run build`, set `PLAYWRIGHT_PRODUCTION=1` and run `npm test` for production. Tests using `PLAYWRIGHT_BASE_URL` intentionally skip controlled OIDC/API scenarios. For real Keycloak verification, the user enters credentials in the provider page. Only clearly named disposable games may be created, edited and deleted for verification; preserve Arcane Drift and all existing data.
 
-Versions, downloads, image uploads and Cognito integration remain outside this milestone.
+Image uploads and Cognito integration remain outside this milestone.
 
 Local verification on 2026-11-03 passed with the real Keycloak client and Spring Boot: manual administrator login, draft creation, persisted editing, publishing, unpublishing, confirmed deletion of the disposable test game (ID 4), and logout with subsequent route protection. Arcane Drift (ID 1) remained published and unchanged. The real non-ADMIN check is deferred because no test account is available; reader denial is covered by the controlled API/OIDC tests. Development tests: 45 passed; production tests: 21 passed; lint, typecheck and production build passed. The filesystem session store still requires a single persistent Node.js deployment as described above.
+
+## Versions and download links
+
+Open a game in `/admin` and choose **MANAGE VERSIONS & DOWNLOADS**. Create or edit a version using the existing language/tool compatibility pairs, platform and processor catalogs. Each version has download-link forms with existing server selection. Deletion requires the exact version name or URL and warns about permanent removal; deleting a version also removes its links.
+
+Public catalog entries link to `/games/{id}`. Only PUBLISHED games expose versions and safe HTTP/HTTPS download links. Drafts are read exclusively through the new ADMIN endpoints when managing them. Authentication, server-only bearer tokens, CSRF checks, appearance and decorative scenes are preserved. No library was added.
+
+See [contracts, endpoints and verification](docs/versions-downloads-contract-review.md) for the backend extension, API DTOs, file inventory and tests. Restart the local Spring Boot service after building the new backend code. No database migration or Keycloak configuration change is required.

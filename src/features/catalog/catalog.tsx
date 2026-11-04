@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import { connection } from "next/server";
 import { PixelIcon } from "@/components/pixel-icon";
 import { RetroWindow } from "@/components/retro-window";
@@ -93,6 +94,7 @@ async function CatalogContent() {
                 <div className="catalog-details">
                   <h3 id={`game-${game.id}`}>{game.name}</h3>
                   <p>{game.description}</p>
+                  <Link className="text-link" href={`/games/${game.id}`}>VERSIONS & DOWNLOADS</Link>
                   <p className="eyebrow">
                     {game.developerCount}{" "}
                     {game.developerCount === 1 ? "DEVELOPER" : "DEVELOPERS"}

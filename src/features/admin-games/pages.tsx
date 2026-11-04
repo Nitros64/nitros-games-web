@@ -10,7 +10,7 @@ import { GameEditor, GameOperations } from "./forms";
 import { parseId } from "./contracts";
 import type { ReactNode } from "react";
 
-async function requireSession() {
+export async function requireSession() {
   await connection();
   if (!authConfigured()) redirect("/admin/login");
   const session = await currentSession();
@@ -18,7 +18,7 @@ async function requireSession() {
   return session;
 }
 
-function AdminFrame({ title, csrf, children }: { title: string; csrf: string; children: ReactNode }) {
+export function AdminFrame({ title, csrf, children }: { title: string; csrf: string; children: ReactNode }) {
   return <main id="main" className="content-width admin-page"><div className="admin-toolbar">
     <Link className="text-link" href="/admin">ALL GAMES</Link><Link className="text-link" href="/">PUBLIC SITE</Link>
     <form action="/auth/logout" method="post"><input type="hidden" name="csrf" value={csrf} /><button>SIGN OUT</button></form>
@@ -51,6 +51,7 @@ export async function AdminEditor({ id: rawId }: { id?: string }) {
   return <AdminFrame title={game ? `EDIT / ${game.name}` : "CREATE GAME"} csrf={session.csrf}>
     {!genres.ok ? <p role="alert">{errorMessage(genres.error)}</p> : <>
       {game && <p className="eyebrow">STATUS / {game.publicationStatus}</p>}
+      {game && <Link className="text-link" href={`/admin/${game.id}/versions`}>MANAGE VERSIONS & DOWNLOADS</Link>}
       <GameEditor game={game} genres={genres.data} csrf={session.csrf} />
       {game && <GameOperations game={game} csrf={session.csrf} />}
     </>}

@@ -1,3 +1,4 @@
+import { resetReleases, releaseCatalog, handleReleases } from "./releases-fixture.mjs";
 import { createHash, generateKeyPairSync, randomBytes, sign } from "node:crypto";
 
 const origin = "http://127.0.0.1:3181";
@@ -18,7 +19,7 @@ export async function handleAdminFixture(req, res) {
   const url = new URL(req.url, origin), path = url.pathname;
   if (path === "/admin-scenario" && req.method === "POST") {
     const scenario = JSON.parse(await body(req));
-    games = []; lifetime = scenario.lifetime ?? 3600; backendStatus = scenario.status ?? 0; invalidNonce = scenario.invalidNonce ?? false;
+    games = scenario.games ?? []; resetReleases(scenario); lifetime = scenario.lifetime ?? 3600; backendStatus = scenario.status ?? 0; invalidNonce = scenario.invalidNonce ?? false;
     json(res, { ok: true }); return true;
   }
   if (path === "/oidc/.well-known/openid-configuration") {
@@ -60,6 +61,15 @@ export async function handleAdminFixture(req, res) {
     res.writeHead(303, { Location: "http://127.0.0.1:3100/admin/login?loggedOut=1" }).end(); return true;
   }
   if (path === "/api/v1/game-genres") { json(res, [{ id: 3, name: "Arcade" }, { id: 7, name: "Shooter" }]); return true; }
+  if (releaseCatalog(path, res)) return true;
+  if (req.method === "GET" && /^\/api\/v1\/games\/\d+/.test(path)) {
+    const game = games.find(item => item.id === Number(path.match(/games\/(\d+)/)?.[1]));
+    if (game) {
+      if (game.publicationStatus !== "PUBLISHED") { json(res, {}, 404); return true; }
+      if (await handleReleases(req, res, path, game)) return true;
+      json(res, game); return true;
+    }
+  }
   if (!path.startsWith("/api/v1/admin/games") && !(path.startsWith("/api/v1/games") && req.method !== "GET")) return false;
   const token = accessTokens.get(req.headers.authorization?.replace(/^Bearer /, ""));
   if (!token || token.expires <= Date.now()) { json(res, {}, 401); return true; }
@@ -73,6 +83,7 @@ export async function handleAdminFixture(req, res) {
   }
   const game = games.find(item => item.id === id);
   if (!game) { json(res, {}, 404); return true; }
+  if (await handleReleases(req, res, path, game)) return true;
   if (req.method === "GET") { json(res, game); return true; }
   if (req.method === "DELETE") { games = games.filter(item => item.id !== id); res.writeHead(204).end(); return true; }
   Object.assign(game, JSON.parse(await body(req))); json(res, game); return true;

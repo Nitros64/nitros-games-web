@@ -13,8 +13,8 @@ export function errorMessage(error: DataError): string {
   if (error.kind === "http") {
     if (error.status === 401) return "Your session is no longer accepted. Sign out and sign in again.";
     if (error.status === 403) return "Access denied. Spring Boot requires ADMIN permission.";
-    if (error.status === 404) return "This game no longer exists. Return to the game list.";
-    if (error.status === 400 || error.status === 422) return "The backend rejected the values. Review the fields and selected genres.";
+    if (error.status === 404) return "Resource not found. Return to the list and reload.";
+    if (error.status === 400 || error.status === 422) return "The backend rejected the values. Review the fields and selected options.";
     if (error.status === 409) return "This change conflicts with the current data. Reload and review before trying again.";
   }
   if (error.kind === "invalid-data") return "The backend returned an unexpected response.";
